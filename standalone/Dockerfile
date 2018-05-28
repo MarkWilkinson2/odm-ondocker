@@ -17,6 +17,9 @@ RUN cd /welcomepage; mvn clean install  | grep -v 'Download.*'
 RUN mkdir -p /config/dbdata /config/resources
 COPY ${ODMDOCKERDIR}/decisioncenter/config/application.xml /config/decisionrunner_application.xml
 
+# Sample DB
+ADD ${ODMDOCKERDIR}/standalone/data.tar.gz /upload/
+
 # Begin - Configuration for the database
 # Install the driver for H2 and for PostgreSQL
 RUN wget -nv http://central.maven.org/maven2/com/h2database/h2/1.4.196/h2-1.4.196.jar && mv h2* /config/resources && \
@@ -54,7 +57,7 @@ RUN $SCRIPT/changeParamValue.sh ForceDatabaseTableCreation false true $APPS/Deci
 # Load Feature
 RUN $SCRIPT/loadFeatures.sh $SCRIPT
 
-FROM websphere-liberty:webProfile7
+FROM websphere-liberty/centos
 ARG ODMDOCKERDIR
 ARG ODMVERSION
 LABEL maintainer="ODMDev odmdev_open_source_user@wwpdl.vnet.ibm.com"
@@ -84,17 +87,24 @@ COPY --from=builder /config/dbdata /config
 ENV CONNECTION_POOL_SIZE 20
 
 # Sample DB
-ADD ${ODMDOCKERDIR}/standalone/data.tar.gz /upload/
+COPY --from=builder --chown=1001:0 /upload/* /upload/
 
 # Welcome page
-COPY --from=builder /welcomepage/target/welcomepage.war $APPS
+COPY --from=builder --chown=1001:0 /welcomepage/target/welcomepage.war $APPS
 COPY --from=builder /config/resources/postgres*  /config/resources
 COPY --from=builder /config/resources/h2*  /config/resources
-COPY --from=builder /config/dbdata /config
-COPY --from=builder $APPS $APPS
+COPY --from=builder --chown=1001:0 /config/dbdata /config
+COPY --from=builder --chown=1001:0 /config/dbdata /config/dbdata/
+COPY --from=builder --chown=1001:0 $APPS $APPS
 COPY --from=builder $SCRIPT $SCRIPT
 VOLUME ["/config/dbdata/"]
 EXPOSE 9060 9453
+
+
+# TODO fixme USER 0
+USER 0
+RUN /opt/ibm/wlp/bin/installUtility install --acceptLicense jsp-2.3 jdbc-4.1 ldapregistry-3.0
+USER 1001
 
 ENTRYPOINT ["/opt/ibm/docker/docker-server"]
 CMD ["/script/runserver.sh"]

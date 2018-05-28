@@ -40,7 +40,7 @@ RUN $SCRIPT/extractApp.sh decisioncenter.war && \
 RUN $SCRIPT/changeParamValue.sh com.ibm.rules.decisioncenter.setup.configuration-file . \\/config\\/decisioncenter-configuration.properties $APPS/decisioncenter.war/WEB-INF/web.xml
 
 
-FROM websphere-liberty:webProfile7
+FROM websphere-liberty/centos
 ARG ODMDOCKERDIR
 ARG ODMVERSION
 LABEL maintainer="ODMDev odmdev_open_source_user@wwpdl.vnet.ibm.com, Laurent GRATEAU <laurent.grateau@fr.ibm.com>"
@@ -64,13 +64,18 @@ COPY $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
 COPY $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
 
 # Welcome page
-COPY --from=builder /welcomepage/target/welcomepage.war $APPS
+COPY --from=builder --chown=1001:0 /welcomepage/target/welcomepage.war $APPS
 # Copy Artifact
-COPY --from=apiBuilder $APPS $APPS
+COPY --from=apiBuilder --chown=1001:0 $APPS $APPS
 COPY --from=apiBuilder /work/decision-center-client-api.zip $APPS/decisioncenter.war/assets/decision-center-client-api.zip
 COPY --from=apiBuilder /config/resources/postgres*  /config/resources
 COPY --from=apiBuilder $SCRIPT $SCRIPT
 EXPOSE 9060 9453
+
+# TODO fixme USER 0
+USER 0
+RUN /opt/ibm/wlp/bin/installUtility install --acceptLicense jsp-2.3 jdbc-4.1 ldapregistry-3.0
+USER 1001
 
 ENTRYPOINT ["/opt/ibm/docker/docker-server"]
 CMD ["/script/rundc.sh"]

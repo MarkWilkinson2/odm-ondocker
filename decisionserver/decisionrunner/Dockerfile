@@ -23,7 +23,7 @@ RUN $SCRIPT/extractApp.sh DecisionRunner.war
 RUN $SCRIPT/changeParamValue.sh ForceDatabaseTableCreation false true $APPS/DecisionRunner.war/WEB-INF/web.xml
 
 
-FROM websphere-liberty:webProfile7
+FROM websphere-liberty/centos
 ARG ODMDOCKERDIR
 ARG ODMVERSION
 LABEL maintainer="ODMDev odmdev_open_source_user@wwpdl.vnet.ibm.com, Laurent GRATEAU <laurent.grateau@fr.ibm.com>"
@@ -48,12 +48,18 @@ COPY $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jk
 COPY $ODMDOCKERDIR/common/drivers /config/resources
 
 # Welcome page
-COPY --from=builder /welcomepage/target/welcomepage.war $APPS
-COPY --from=builder $APPS $APPS
+COPY --from=builder --chown=1001:0 /welcomepage/target/welcomepage.war $APPS
+COPY --from=builder --chown=1001:0 $APPS $APPS
 COPY --from=builder /config/resources/postgres*  /config/resources
 COPY --from=builder $SCRIPT $SCRIPT
 
 EXPOSE 9080 9443
+
+
+# TODO fixme USER 0
+USER 0
+RUN yum install -y perl; /opt/ibm/wlp/bin/installUtility install --acceptLicense jsp-2.3 jdbc-4.1 ldapregistry-3.0
+USER 1001
 
 ENTRYPOINT ["/opt/ibm/docker/docker-server"]
 CMD ["/script/rundr.sh"]

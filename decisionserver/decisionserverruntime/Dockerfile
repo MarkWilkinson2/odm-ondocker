@@ -26,7 +26,7 @@ COPY ./executionserver/applicationservers/WLP855/DecisionService.war $APPS
 
 RUN $SCRIPT/extractApp.sh DecisionService.war
 
-FROM websphere-liberty:webProfile7
+FROM websphere-liberty/centos
 ARG ODMDOCKERDIR
 ARG ODMVERSION
 ARG DECISIONSERVERCONSOLE_NAME
@@ -52,8 +52,8 @@ COPY $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jk
 COPY $ODMDOCKERDIR/common/drivers /config/resources
 
 # Welcome page
-COPY --from=builder /welcomepage/target/welcomepage.war $APPS
-COPY --from=builder $APPS $APPS
+COPY --from=builder --chown=1001:0 /welcomepage/target/welcomepage.war $APPS
+COPY --from=builder --chown=1001:0 $APPS $APPS
 COPY --from=builder /config/resources/postgres*  /config/resources
 COPY --from=builder $SCRIPT $SCRIPT
 EXPOSE 9080 9443
