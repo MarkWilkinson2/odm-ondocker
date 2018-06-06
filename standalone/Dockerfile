@@ -34,7 +34,8 @@ COPY ./teamserver/applicationservers/WLP855/decisioncenter*.war $APPS/
 
 RUN $SCRIPT/extractApp.sh decisioncenter.war && \
     $SCRIPT/extractApp.sh teamserver.war && \
-    mkdir -p $APPS/decisioncenter.war/WEB-INF/classes/config
+    mkdir -p $APPS/decisioncenter.war/WEB-INF/classes/config && \
+    chmod -R 777 $APPS/decisioncenter.war/WEB-INF/classes/config
 
 RUN $SCRIPT/changeParamValue.sh com.ibm.rules.decisioncenter.setup.configuration-file . \\/config\\/decisioncenter-configuration.properties $APPS/decisioncenter.war/WEB-INF/web.xml
 
@@ -47,7 +48,8 @@ RUN $SCRIPT/changeParamValue.sh autoCreateSchema false true $APPS/res.war/WEB-IN
 
 # Decision Server Runtime
 COPY ./executionserver/applicationservers/WLP855/DecisionService.war $APPS
-RUN $SCRIPT/extractApp.sh DecisionService.war
+RUN $SCRIPT/extractApp.sh DecisionService.war && \
+    chmod -R 777 $APPS/DecisionService.war/WEB-INF/classes/
 
 # Decision Runner
 COPY ./executionserver/applicationservers/WLP855/DecisionRunner.war $APPS

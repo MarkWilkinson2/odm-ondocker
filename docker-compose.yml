@@ -7,6 +7,10 @@ services:
         dockerfile: ./${ODMDOCKERDIR}/databases/postgresql/Dockerfile
         args:
         - ODMDOCKERDIR=$ODMDOCKERDIR
+        - PGDATA=/pgdata
+        - POSTGRES_USER=odmusr
+        - POSTGRES_PASSWORD=odmpwd
+        - POSTGRES_DB=odmdb
     ports:
     - 5432:5432
     environment:

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e 
+set -e
 
 if [ ! -f initialized.flag ] ; then
 	if [ "$SAMPLE" = "true" ] ; then
@@ -10,4 +10,4 @@ if [ ! -f initialized.flag ] ; then
 	touch initialized.flag
 fi;
 
-exec "docker-entrypoint.sh" "$@"
+exec "container-entrypoint" "$@"
