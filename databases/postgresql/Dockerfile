@@ -19,9 +19,16 @@ ENV POSTGRESQL_DATABASE $POSTGRES_DB
 ENV POSTGRESQL_USER $POSTGRES_USER
 ENV POSTGRESQL_PASSWORD $POSTGRES_PASSWORD
 
+USER 0
+RUN ln -s /var/lib/pgsql/data $PGDATA
+RUN ln -s /opt/rh/rh-postgresql96/root/usr/bin/psql /usr/local/bin/psql
+RUN ln -s /opt/rh/rh-postgresql96/root/usr/lib64/libpq.so.rh-postgresql96-5 /usr/lib64/libpq.so.rh-postgresql96-5
+# postgres user
+USER 26
+
 COPY --from=builder /usr/local/bin/rundb.sh  /usr/local/bin/
 COPY --from=builder --chown=postgres:nobody /upload /upload
-COPY --from=builder --chown=postgres:nobody /tmp/pgdata/ $PGDATA
+COPY --from=builder --chown=postgres:nobody /tmp/pgdata/ $PGDATA/
 
 ENTRYPOINT ["/usr/local/bin/rundb.sh"]
 CMD ["run-postgresql"]
