@@ -66,5 +66,12 @@ COPY --from=builder /wlp-embeddable/wlp  /opt/ibm/wlp
 
 EXPOSE 9080 9443
 
+
+# TODO fixme USER 0
+USER 0
+RUN /opt/ibm/wlp/bin/installUtility install --acceptLicense jsp-2.3 jdbc-4.1 ldapregistry-3.0
+USER 1001
+
+
 ENTRYPOINT ["/opt/ibm/docker/docker-server"]
 CMD ["/script/runds.sh"]

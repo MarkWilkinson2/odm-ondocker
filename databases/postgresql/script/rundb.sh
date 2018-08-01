@@ -2,6 +2,8 @@
 
 set -e
 
+export POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+
 if [ ! -f initialized.flag ] ; then
 	if [ "$SAMPLE" = "true" ] ; then
 		mkdir -p "$PGDATA"
