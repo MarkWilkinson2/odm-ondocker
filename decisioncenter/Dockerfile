@@ -59,13 +59,13 @@ ENV ODMDOCKERDIR $ODMDOCKERDIR
 ENV SCRIPT /script
 ENV APPS /config/apps
 
-COPY $ODMDOCKERDIR/decisioncenter/config /config
-COPY $ODMDOCKERDIR/decisioncenter/script $SCRIPT
-COPY $ODMDOCKERDIR/common/config /config
+COPY --chown=1001:0 $ODMDOCKERDIR/decisioncenter/config /config
+COPY --chown=1001:0 $ODMDOCKERDIR/decisioncenter/script $SCRIPT
+COPY --chown=1001:0 $ODMDOCKERDIR/common/config /config
 
-COPY $ODMDOCKERDIR/common/security/ltpa.keys /config/resources/security/ltpa.keys
-COPY $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
-COPY $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
+COPY --chown=1001:0 $ODMDOCKERDIR/common/security/ltpa.keys /config/resources/security/ltpa.keys
+COPY --chown=1001:0 $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
+COPY --chown=1001:0 $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
 
 # Welcome page
 COPY --from=builder --chown=1001:0 /welcomepage/target/welcomepage.war $APPS

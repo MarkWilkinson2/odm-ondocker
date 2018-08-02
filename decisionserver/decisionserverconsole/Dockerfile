@@ -45,13 +45,13 @@ ENV APPS /config/apps
 ENV CONNECTION_POOL_SIZE 20
 
 
-COPY $ODMDOCKERDIR/decisionserver/config /config
-COPY $ODMDOCKERDIR/decisionserver/decisionserverconsole/config /config
-COPY $ODMDOCKERDIR/common/config /config
-COPY $ODMDOCKERDIR/common/security/ltpa.keys /config/resources/security/ltpa.keys
-COPY $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
-COPY $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
-COPY $ODMDOCKERDIR/common/drivers /config/resources
+COPY --chown=1001:0 $ODMDOCKERDIR/decisionserver/config /config
+COPY --chown=1001:0 $ODMDOCKERDIR/decisionserver/decisionserverconsole/config /config
+COPY --chown=1001:0 $ODMDOCKERDIR/common/config /config
+COPY --chown=1001:0 $ODMDOCKERDIR/common/security/ltpa.keys /config/resources/security/ltpa.keys
+COPY --chown=1001:0 $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
+COPY --chown=1001:0 $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
+COPY --chown=1001:0 $ODMDOCKERDIR/common/drivers /config/resources
 
 
 # Welcome page
