@@ -1,9 +1,9 @@
-FROM maven:3.5.2-jdk-7-alpine AS builder
+FROM maven:3.5.2-jdk-8-alpine AS builder
 ARG ODMDOCKERDIR
 ENV ODMDOCKERDIR $ODMDOCKERDIR
 ENV SCRIPT /script
 ENV APPS /config/apps
-
+ENV THIRDPARTY /thirdpartylib
 RUN apk add --no-cache  perl ca-certificates wget
 
 COPY ${ODMDOCKERDIR}/decisioncenter/script $SCRIPT
@@ -34,6 +34,7 @@ COPY ./teamserver/applicationservers/WLP855/decisioncenter*.war $APPS/
 
 RUN $SCRIPT/extractApp.sh decisioncenter.war && \
     $SCRIPT/extractApp.sh teamserver.war && \
+    $SCRIPT/extractApp.sh decisioncenter-api.war && \
     mkdir -p $APPS/decisioncenter.war/WEB-INF/classes/config && \
     chmod -R 777 $APPS/decisioncenter.war/WEB-INF/classes/config
 
@@ -57,6 +58,10 @@ RUN $SCRIPT/extractApp.sh DecisionRunner.war
 RUN $SCRIPT/changeParamValue.sh ForceDatabaseTableCreation false true $APPS/DecisionRunner.war/WEB-INF/web.xml
 
 # Load Feature
+# Fix for WLP 18.0.0.2
+RUN mkdir $THIRDPARTY
+COPY ./executionserver/lib/jaxws $THIRDPARTY
+# End Fix
 RUN $SCRIPT/loadFeatures.sh $SCRIPT
 
 FROM websphere-liberty/centos
