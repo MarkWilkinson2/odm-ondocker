@@ -16,6 +16,7 @@ COPY $ODMDOCKERDIR/common/drivers /config/resources
 # Use production liberty if needed
 COPY $ODMDOCKERDIR/resources/* /wlp-embeddable/
 RUN chmod a+x $SCRIPT/fixWLPForProduction.sh && sync && $SCRIPT/fixWLPForProduction.sh
+
 # Install missing require package in the alpine builder image
 RUN apk add --no-cache bash perl ca-certificates wget
 # Build welcome page
@@ -25,7 +26,6 @@ RUN cd /welcomepage; mvn -B clean install | grep -v 'Download.*' && mkdir -p $AP
 RUN chmod -R a+x $SCRIPT && \
     sync && \
     if [ ! -f /config/resources/postgres* ]; then $SCRIPT/installPostgres.sh; fi
-
 
 # Decision Server Runtime
 COPY ./executionserver/applicationservers/WLP855/DecisionService.war $APPS
@@ -49,29 +49,21 @@ ENV APPS /config/apps
 ENV CONNECTION_POOL_SIZE 60
 ENV DECISIONSERVERCONSOLE_NAME $DECISIONSERVERCONSOLE_NAME
 
-COPY --chown=1001:0 $ODMDOCKERDIR/decisionserver/config /config
-COPY --chown=1001:0 $ODMDOCKERDIR/decisionserver/decisionserverruntime/config /config
-COPY --chown=1001:0 $ODMDOCKERDIR/common/config /config
-COPY --chown=1001:0 $ODMDOCKERDIR/common/security/ltpa.keys /config/resources/security/ltpa.keys
-COPY --chown=1001:0 $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
-COPY --chown=1001:0 $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
-COPY --chown=1001:0 $ODMDOCKERDIR/common/drivers /config/resources
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/decisionserver/config /config
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/decisionserver/decisionserverruntime/config /config
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/common/config /config
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/common/security/ltpa.keys /config/resources/security/ltpa.keys
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/common/security/keystore.jks /config/security/keystore.jks
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/common/security/truststore.jks /config/security/truststore.jks
+COPY --chown=1000080000:nobody $ODMDOCKERDIR/common/drivers /config/resources
 
 # Welcome page
-COPY --from=builder --chown=1001:0 /welcomepage/target/welcomepage.war $APPS
-COPY --from=builder --chown=1001:0 $APPS $APPS
+COPY --from=builder --chown=1000080000:nobody /welcomepage/target/welcomepage.war $APPS
+COPY --from=builder --chown=1000080000:nobody $APPS $APPS
 COPY --from=builder /config/resources/postgres*  /config/resources
 COPY --from=builder $SCRIPT $SCRIPT
 COPY --from=builder /wlp-embeddable/wlp  /opt/ibm/wlp
 
 EXPOSE 9080 9443
-
-
-# TODO fixme USER 0
-USER 0
-RUN /opt/ibm/wlp/bin/installUtility install --acceptLicense jsp-2.3 jdbc-4.1 ldapregistry-3.0
-USER 1001
-
-
 ENTRYPOINT ["/opt/ibm/docker/docker-server"]
 CMD ["/script/runds.sh"]
