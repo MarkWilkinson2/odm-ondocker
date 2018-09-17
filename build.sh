@@ -4,7 +4,10 @@ echo "start building odm-ondocker..."
 echo "current build directory:"
 pwd
 cd ../
-
+echo "Content directory Cache"
+ls $HOME/.cache/
+echo "Content directory $ODM_FILE_NAME "
+ls $HOME/.cache/$ODM_FILE_NAME
 if [ ! -f $HOME/.cache/$ODM_FILE_NAME ]; then
     echo "ODM distribution: Starting download..."
     ODM_ZIP_URL=${ODM_URL}/${ODM_VERSION}/icp-docker-compose-build-images-${ODM_VERSION}.zip
