@@ -4,9 +4,9 @@ echo "start building odm-ondocker..."
 echo "current build directory:"
 pwd
 cd ../
-echo "Content directory Cache"
+echo "Before Content directory Cache"
 ls $HOME/.cache/
-echo "Content directory $ODM_FILE_NAME "
+echo "Before Content directory $ODM_FILE_NAME "
 ls $HOME/.cache/$ODM_FILE_NAME
 if [ ! -f $HOME/.cache/$ODM_FILE_NAME ]; then
     echo "ODM distribution: Starting download..."
@@ -18,8 +18,10 @@ else
     echo "ODM distribution: Loading from cache..."
     echo "ODM distribution: Loading finished..."
 fi
-
-echo "unzip odm distribution..."
+ls $HOME/.cache/
+echo "After Content directory $ODM_FILE_NAME "
+ls $HOME/.cache/$ODM_FILE_NAME
+echo "After unzip odm distribution..."
 unzip -q $HOME/.cache/$ODM_FILE_NAME
 
 echo "copy odm-ondocker into ODM distribution..."
